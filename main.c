@@ -34,9 +34,9 @@ void __attribute__((noinline)) write_pixel(uint8_t data[])
         " ldi r17, 8 \n" // set bit counter to 8
 
         "bitloop: "
-        " out %[port], %[pin] \n" // Set pin to HIGH
-        " lsl r16 \n"          // Shift the bit we're working on into C flag
-        " brcs sendhigh \n"    // Stay high on 1 bit
+        " out %[port], %[pin] \n"  // Set pin to HIGH
+        " lsl r16 \n"              // Shift the bit we're working on into C flag
+        " brcs sendhigh \n"        // Stay high on 1 bit
         " out %[port], %[zero] \n" // Send 0 bit
 
         "sendhigh: "
@@ -44,7 +44,7 @@ void __attribute__((noinline)) write_pixel(uint8_t data[])
 
         "endlow: "
         " out %[port], %[zero] \n" // Shared LOW
-        " breq start \n"       // if bit counter was 0, back to start
+        " breq start \n"           // if bit counter was 0, back to start
         " nop \n"
         " rjmp bitloop \n"
 
@@ -131,7 +131,8 @@ uint8_t dim_colors[3] = {0x00, 0x00, 0x00};
 
 void dim(uint8_t divider)
 {
-    for (uint8_t i=0; i<3; i++) {
+    for (uint8_t i = 0; i < 3; i++)
+    {
         dim_colors[i] = scale8(base_colors[i], divider);
     }
 }
