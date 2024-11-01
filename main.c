@@ -1,10 +1,5 @@
-#define F_CPU 8000000
-#define QADD8_AVRASM 1
-
-// #include <xc.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/sleep.h>
 
 #include "lib8tion/lib8tion.h"
 
