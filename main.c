@@ -158,9 +158,12 @@ int main(void)
 
     while (1)
     {
-        base_colors[0] = rand_tiny();
-        base_colors[1] = rand_tiny();
-        base_colors[2] = rand_tiny();
+        // base_colors = colors[rand_tiny() % 3]
+        // New random color
+        for (uint8_t i = 0; i < 3; i++)
+        {
+            base_colors[i] = rand_tiny();
+        }
 
         uint8_t loops = 2;
 
