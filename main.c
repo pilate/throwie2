@@ -4,6 +4,10 @@
 #include "lib8tion/lib8tion.h"
 
 
+// #define FLICKER 1
+#define BREATHE 1
+
+// Embed source link in hex
 uint8_t pilate[] = "github.com/Pilate";
 
 
@@ -59,6 +63,7 @@ void __attribute__((noinline)) write_pixel(uint8_t data[])
         : "r16", "r17");
 }
 
+// Set up watchdog timer
 void inline tn_wdt_setup(uint8_t wdp)
 {
     // interrupt flag, interupt enable, change enable, enable
@@ -96,15 +101,30 @@ ISR(ADC_vect)
 {
 }
 
-int8_t rand_tiny()
-{
-    static uint8_t seed = 1;
+// int8_t volatile rand_tiny()
+// {
+//     static uint8_t seed = 3;
 
-    seed *= 13;
-    return seed;
+//     seed *= 13;
+//     return seed;
+// }
+
+
+// Claude *magic*
+uint8_t volatile rand_tiny(void)
+{
+    static uint8_t lfsr = 1;
+
+    uint8_t bit = lfsr & 1;
+    lfsr >>= 1;
+    if (bit)
+    {
+        lfsr ^= 0xB4;
+    }
+    return lfsr;
 }
 
-uint8_t adc_sample()
+uint8_t volatile adc_sample()
 {
     PORTB = 1 << PB1; // turn on power to photoresitor
 
@@ -126,52 +146,36 @@ uint8_t adc_sample()
     return result;
 }
 
-uint8_t base_colors[3] = {0x00, 0x00, 0x00};
-uint8_t dim_colors[3] = {0x00, 0x00, 0x00};
+uint8_t base_color[3] = {0x00, 0x00, 0x00};
+uint8_t show_color[3] = {0x00, 0x00, 0x00};
 
-void dim(uint8_t divider)
+void volatile dim(uint8_t divider)
 {
     for (uint8_t i = 0; i < 3; i++)
     {
-        dim_colors[i] = scale8(base_colors[i], divider);
+        show_color[i] = scale8(base_color[i], divider);
     }
 }
 
-int main(void)
+#ifdef BREATHE
+
+void volatile effect()
 {
-    // disable protection
-    CCP = 0xD8;
-    // disable clock divider
-    CLKPSR = 0;
-
-    // PB0 used for photoresistor input
-    DDRB = 0b11111110;
-    PORTB = 0;
-
-    // Digital input disable on ADC pins
-    DIDR0 = (1 << ADC0D) | (1 << ADC1D);
-
-    cli();
-
-    // Clear pixel
-    write_pixel(base_colors);
-
     while (1)
     {
-        // base_colors = colors[rand_tiny() % 3]
         // New random color
         for (uint8_t i = 0; i < 3; i++)
         {
-            base_colors[i] = rand_tiny();
+            base_color[i] = rand_tiny();
         }
 
-        uint8_t loops = 2;
-
-        while (adc_sample() < 127)
+        while (adc_sample() < 100)
         {
-            nap(0xf000); // 60 seconds
+            // nap(0xf000); // 60 seconds
+            nap(10240);
         }
 
+        uint8_t loops = 3;
         while (loops--)
         {
             uint8_t counter = 1;
@@ -193,11 +197,70 @@ int main(void)
                 }
 
                 dim(ease8InOutApprox(counter));
-                write_pixel(dim_colors);
+                write_pixel(show_color);
                 nap(16);
             }
 
             nap(512);
         }
     }
+}
+
+#elif FLICKER
+
+void effect()
+{
+    base_color[1] = 0xff;
+
+    while (1)
+    {
+        while (adc_sample() < 100)
+        {
+            // nap(0xf000); // 60 seconds
+            nap(10240);
+        }
+
+        // Don't want to hit the ADC every loop
+        uint8_t counter = 0xff;
+        while (counter--) {
+            uint8_t rand_byte = rand_tiny();
+            if ((rand_byte % 8) == 0)
+            {
+                base_color[1] = 0x60;
+            }
+            else
+            {
+                base_color[1] = 0x7f;
+            }
+            write_pixel(base_color);
+            if ((rand_byte % 5) == 0) {
+                nap(64);
+            }
+            nap(64);
+        }
+    }
+}
+
+#endif
+
+int main(void)
+{
+    // disable protection
+    CCP = 0xD8;
+    // disable clock divider
+    CLKPSR = 0;
+
+    // PB0 used for photoresistor input
+    DDRB = 0b11111110;
+    PORTB = 0;
+
+    // Digital input disable on ADC pins
+    DIDR0 = (1 << ADC0D) | (1 << ADC1D);
+
+    cli();
+
+    // Clear pixel
+    write_pixel(base_color);
+
+    effect();
 }
