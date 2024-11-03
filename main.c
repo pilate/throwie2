@@ -184,21 +184,13 @@ void effect()
         while (loops--)
         {
             uint8_t counter = 1;
-            uint8_t up = 1;
+            int8_t direction = 1;
 
             while (counter)
             {
-                if (up)
-                {
-                    counter++;
-                    if (counter == 127)
-                    {
-                        up = 0;
-                    }
-                }
-                else
-                {
-                    counter--;
+                counter += direction;
+                if (counter == 127) {
+                    direction = -1;
                 }
 
                 dim(ease8InOutApprox(counter));
