@@ -10,8 +10,11 @@
 // Embed source link in hex
 uint8_t pilate[] = "github.com/Pilate";
 
+uint8_t base_color[3] = {0x00, 0x00, 0x00};
+uint8_t show_color[3] = {0x00, 0x00, 0x00};
 
-void __attribute__((noinline)) write_pixel(uint8_t data[])
+
+void __attribute__((noinline)) write_pixel()
 {
     /*
     8 MHz - 125ns (0.125us)
@@ -56,7 +59,7 @@ void __attribute__((noinline)) write_pixel(uint8_t data[])
         " sei \n"
         :
         : [port] "m"(PORTB),
-          [data] "x"(data),
+          [data] "x"(show_color),
           [data_len] "r"(3),
           [pin] "r"(1 << PB2),
           [zero] "r"(0)
@@ -145,9 +148,6 @@ uint8_t volatile adc_sample()
 
     return result;
 }
-
-uint8_t base_color[3] = {0x00, 0x00, 0x00};
-uint8_t show_color[3] = {0x00, 0x00, 0x00};
 
 void volatile dim(uint8_t divider)
 {
