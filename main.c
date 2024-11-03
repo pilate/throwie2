@@ -33,7 +33,8 @@ void update_led()
 
     asm volatile(
         "setup: "
-        " cli \n"        // disable interrupts
+        " cli \n" // disable interrupts
+
         " clr r18 \n"    // Set r18 to 0
         " ldi r19, 3 \n" // Set r19 to number of bytes to send
         " ldi r20, 4 \n" // Set r20 to 'PB2 on'
