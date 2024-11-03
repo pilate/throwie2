@@ -31,26 +31,29 @@ void update_led()
 
     asm volatile(
         "setup: "
-        " cli \n" // disable interrupts
+        " cli \n"        // disable interrupts
+        " clr r18 \n"    // Set r18 to 0
+        " ldi r19, 3 \n" // Set r19 to number of bytes to send
+        " ldi r20, 4 \n" // Set r20 to 'PB2 on'
 
         "start: "
-        " dec %[data_len] \n"
+        " dec r19 \n"
         " brmi end \n"
         " ld r16, X+ \n" // Load next byte into r16
         " ldi r17, 8 \n" // set bit counter to 8
 
         "bitloop: "
-        " out %[port], %[pin] \n"  // Set pin to HIGH
-        " lsl r16 \n"              // Shift the bit we're working on into C flag
-        " brcs sendhigh \n"        // Stay high on 1 bit
-        " out %[port], %[zero] \n" // Send 0 bit
+        " out %[port], r20 \n" // Set pin to HIGH
+        " lsl r16 \n"             // Shift the bit we're working on into C flag
+        " brcs sendhigh \n"       // Stay high on 1 bit
+        " out %[port], r18 \n"    // Send 0 bit
 
         "sendhigh: "
         " dec r17 \n" // decrease bit counter
 
         "endlow: "
-        " out %[port], %[zero] \n" // Shared LOW
-        " breq start \n"           // if bit counter was 0, back to start
+        " out %[port], r18 \n" // Shared LOW
+        " breq start \n"       // if bit counter was 0, back to start
         " nop \n"
         " rjmp bitloop \n"
 
@@ -58,10 +61,7 @@ void update_led()
         " sei \n"
         :
         : [port] "m"(PORTB),
-          [data] "x"(led_color),
-          [data_len] "r"(3),
-          [pin] "r"(1 << PB2),
-          [zero] "r"(0)
+          [data] "x"(led_color)
         : "r16", "r17");
 }
 
