@@ -247,6 +247,10 @@ void effect()
 
         while (adc_sample() < 100)
         {
+            if (led_color[2]) {
+                led_color[2] = 0x00;
+                update_led();
+            }
             // nap(0xf000); // 60 seconds
             nap(10240);
         }
