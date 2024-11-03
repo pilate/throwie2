@@ -27,6 +27,8 @@ void update_led()
       - 0.625 HIGH (5 cycles)
       - 0.625 LOW (5 cycles)
 
+    R18–R27, R30, R31
+        These GPRs are call clobbered. An ordinary function may use them without restoring the contents.
     */
 
     asm volatile(
@@ -39,17 +41,17 @@ void update_led()
         "start: "
         " dec r19 \n"
         " brmi end \n"
-        " ld r16, X+ \n" // Load next byte into r16
-        " ldi r17, 8 \n" // set bit counter to 8
+        " ld r21, X+ \n" // Load next byte into r21
+        " ldi r22, 8 \n" // set bit counter to 8
 
         "bitloop: "
         " out %[port], r20 \n" // Set pin to HIGH
-        " lsl r16 \n"             // Shift the bit we're working on into C flag
-        " brcs sendhigh \n"       // Stay high on 1 bit
-        " out %[port], r18 \n"    // Send 0 bit
+        " lsl r21 \n"          // Shift the bit we're working on into C flag
+        " brcs sendhigh \n"    // Stay high on 1 bit
+        " out %[port], r18 \n" // Send 0 bit
 
         "sendhigh: "
-        " dec r17 \n" // decrease bit counter
+        " dec r22 \n" // decrease bit counter
 
         "endlow: "
         " out %[port], r18 \n" // Shared LOW
@@ -62,7 +64,7 @@ void update_led()
         :
         : [port] "m"(PORTB),
           [data] "x"(led_color)
-        : "r16", "r17");
+        :);
 }
 
 // Set up watchdog timer
