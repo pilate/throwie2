@@ -105,15 +105,7 @@ ISR(ADC_vect)
 {
 }
 
-// int8_t volatile tiny_rand()
-// {
-//     static uint8_t seed = 3;
-
-//     seed *= 13;
-//     return seed;
-// }
-
-// Claude *magic*
+// Claude *magic* RNG
 uint8_t tiny_rand(void)
 {
     static uint8_t lfsr = 1;
