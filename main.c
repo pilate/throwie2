@@ -188,7 +188,8 @@ void effect()
             while (counter)
             {
                 counter += direction;
-                if (counter == 127) {
+                if (counter == 127)
+                {
                     direction = -1;
                 }
 
