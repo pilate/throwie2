@@ -10,9 +10,10 @@
 // Embed source link in hex
 const uint8_t pilate[] = "github.com/Pilate";
 
-uint8_t pixel_color[3] = {0x00, 0x00, 0x00};
+uint8_t led_color[3] = {0x00, 0x00, 0x00};
 
-void write_pixel()
+
+void update_led()
 {
     /*
     8 MHz - 125ns (0.125us)
@@ -57,7 +58,7 @@ void write_pixel()
         " sei \n"
         :
         : [port] "m"(PORTB),
-          [data] "x"(pixel_color),
+          [data] "x"(led_color),
           [data_len] "r"(3),
           [pin] "r"(1 << PB2),
           [zero] "r"(0)
@@ -102,7 +103,7 @@ ISR(ADC_vect)
 {
 }
 
-// int8_t volatile rand_tiny()
+// int8_t volatile tiny_rand()
 // {
 //     static uint8_t seed = 3;
 
@@ -111,7 +112,7 @@ ISR(ADC_vect)
 // }
 
 // Claude *magic*
-uint8_t rand_tiny(void)
+uint8_t tiny_rand(void)
 {
     static uint8_t lfsr = 1;
 
@@ -156,7 +157,7 @@ void dim(uint8_t divider)
 {
     for (uint8_t i = 0; i < 3; i++)
     {
-        pixel_color[i] = scale8(rand_color[i], divider);
+        led_color[i] = scale8(rand_color[i], divider);
     }
 }
 
@@ -167,7 +168,7 @@ void effect()
         // New random color
         for (uint8_t i = 0; i < 3; i++)
         {
-            rand_color[i] = rand_tiny();
+            rand_color[i] = tiny_rand();
         }
 
         while (adc_sample() < 100)
@@ -198,7 +199,7 @@ void effect()
                 }
 
                 dim(ease8InOutApprox(counter));
-                write_pixel();
+                update_led();
                 nap(16);
             }
 
@@ -211,16 +212,16 @@ void effect()
 
 void effect()
 {
-    pixel_color[1] = 0xff;
+    led_color[1] = 0xff;
 
     while (1)
     {
         while (adc_sample() < 100)
         {
-            if (pixel_color[1])
+            if (led_color[1])
             {
-                pixel_color[1] = 0;
-                write_pixel();
+                led_color[1] = 0;
+                update_led();
             }
             // nap(0xf000); // 60 seconds
             nap(10240);
@@ -230,16 +231,16 @@ void effect()
         uint8_t counter = 0xff;
         while (counter--)
         {
-            uint8_t rand_byte = rand_tiny();
+            uint8_t rand_byte = tiny_rand();
             if ((rand_byte % 8) == 0)
             {
-                pixel_color[1] = 0x60;
+                led_color[1] = 0x60;
             }
             else
             {
-                pixel_color[1] = 0x7f;
+                led_color[1] = 0x7f;
             }
-            write_pixel();
+            update_led();
             if ((rand_byte % 5) == 0)
             {
                 nap(64);
@@ -267,8 +268,8 @@ int main(void)
 
     cli();
 
-    // Clear pixel
-    write_pixel();
+    // Clear LED
+    update_led();
 
     effect();
 }
