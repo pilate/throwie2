@@ -136,10 +136,12 @@ uint8_t volatile adc_sample()
              (1 << ADPS2) | // Set prescaler to 64
              (1 << ADPS1);
 
+    asm volatile("sei");
     SMCR = (1 << SM0) | // Sleep mode: ADC Noise reduction
            (1 << SE);   // Sleep enable
 
     asm volatile("sleep");
+    asm volatile("cli");
 
     uint8_t result = ADCL;
 
