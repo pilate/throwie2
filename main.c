@@ -12,8 +12,7 @@ const uint8_t pilate[] = "github.com/Pilate";
 
 uint8_t pixel_color[3] = {0x00, 0x00, 0x00};
 
-
-void __attribute__((noinline)) write_pixel()
+void write_pixel()
 {
     /*
     8 MHz - 125ns (0.125us)
@@ -112,7 +111,7 @@ ISR(ADC_vect)
 // }
 
 // Claude *magic*
-uint8_t volatile rand_tiny(void)
+uint8_t rand_tiny(void)
 {
     static uint8_t lfsr = 1;
 
@@ -125,7 +124,7 @@ uint8_t volatile rand_tiny(void)
     return lfsr;
 }
 
-uint8_t volatile adc_sample()
+uint8_t adc_sample()
 {
     PORTB = 1 << PB1; // turn on power to photoresitor
 
@@ -153,7 +152,7 @@ uint8_t volatile adc_sample()
 
 uint8_t rand_color[3] = {0x00, 0x00, 0x00};
 
-void volatile dim(uint8_t divider)
+void dim(uint8_t divider)
 {
     for (uint8_t i = 0; i < 3; i++)
     {
@@ -161,7 +160,7 @@ void volatile dim(uint8_t divider)
     }
 }
 
-void volatile effect()
+void effect()
 {
     while (1)
     {
@@ -210,7 +209,7 @@ void volatile effect()
 
 #elif FLICKER
 
-void volatile effect()
+void effect()
 {
     pixel_color[1] = 0xff;
 
