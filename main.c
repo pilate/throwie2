@@ -96,13 +96,16 @@ void nap(uint16_t nap_time)
     }
 }
 
-ISR(WDT_vect)
+// Watchdog
+ISR(WDT_vect, ISR_NAKED)
 {
-    WDTCSR = 0;
+    asm volatile ("reti");
 }
 
-ISR(ADC_vect)
+// ADC
+ISR(ADC_vect, ISR_NAKED)
 {
+    asm volatile ("reti");
 }
 
 // Claude *magic* RNG
