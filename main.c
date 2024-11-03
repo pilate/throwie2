@@ -13,7 +13,7 @@ const uint8_t pilate[] = "github.com/Pilate";
 uint8_t led_color[3] = {0x00, 0x00, 0x00};
 
 
-void update_led()
+void volatile update_led()
 {
     /*
     8 MHz - 125ns (0.125us)
@@ -27,35 +27,33 @@ void update_led()
       - 0.625 HIGH (5 cycles)
       - 0.625 LOW (5 cycles)
 
-    R18–R27, R30, R31
-        These GPRs are call clobbered. An ordinary function may use them without restoring the contents.
     */
 
     asm volatile(
         "setup: "
         " cli \n" // disable interrupts
 
-        " clr r18 \n"    // Set r18 to 0
-        " ldi r19, 3 \n" // Set r19 to number of bytes to send
-        " ldi r20, 4 \n" // Set r20 to 'PB2 on'
+        " clr r25 \n"    // Set r25 to 0
+        " ldi r24, 3 \n" // Set r24 to number of bytes to send
+        " ldi r23, 4 \n" // Set r23 to 'PB2 on'
 
         "start: "
-        " dec r19 \n"
+        " dec r24 \n"
         " brmi end \n"
         " ld r21, X+ \n" // Load next byte into r21
         " ldi r22, 8 \n" // set bit counter to 8
 
         "bitloop: "
-        " out %[port], r20 \n" // Set pin to HIGH
+        " out %[port], r23 \n" // Set pin to HIGH
         " lsl r21 \n"          // Shift the bit we're working on into C flag
         " brcs sendhigh \n"    // Stay high on 1 bit
-        " out %[port], r18 \n" // Send 0 bit
+        " out %[port], r25 \n" // Send 0 bit
 
         "sendhigh: "
         " dec r22 \n" // decrease bit counter
 
         "endlow: "
-        " out %[port], r18 \n" // Shared LOW
+        " out %[port], r25 \n" // Shared LOW
         " breq start \n"       // if bit counter was 0, back to start
         " nop \n"
         " rjmp bitloop \n"
@@ -65,7 +63,7 @@ void update_led()
         :
         : [port] "m"(PORTB),
           [data] "x"(led_color)
-        :);
+        : "r21", "r22", "r23", "r24", "r25");
 }
 
 // Set up watchdog timer
@@ -77,7 +75,7 @@ void inline tn_wdt_setup(uint8_t wdp)
     WDTCSR = wdp;
 }
 
-void __attribute__((noinline)) nap(uint16_t nap_time)
+void nap(uint16_t nap_time)
 {
     uint16_t timeout;
     uint8_t wdp;
