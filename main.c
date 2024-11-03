@@ -6,6 +6,7 @@
 
 #define BREATHE 1
 // #define FLICKER 1
+// #define SIREN 1
 
 // Embed source link in hex
 const uint8_t volatile pilate[] = "github.com/Pilate";
@@ -239,6 +240,36 @@ void effect()
                 nap(64);
             }
             nap(64);
+        }
+
+    }
+}
+
+#elif SIREN
+
+void effect()
+{
+    while (1)
+    {
+
+        while (adc_sample() < 100)
+        {
+            // nap(0xf000); // 60 seconds
+            nap(10240);
+        }
+
+        // Don't want to hit the ADC every loop
+        uint8_t counter = 0xff;
+        while (counter--)
+        {
+            led_color[2] = 0x00;
+            led_color[1] = 0xff;
+            update_led();
+            nap(128);
+            led_color[1] = 0x00;
+            led_color[2] = 0xff;
+            update_led();
+            nap(128);
         }
     }
 }
