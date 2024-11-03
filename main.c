@@ -8,7 +8,7 @@
 // #define FLICKER 1
 
 // Embed source link in hex
-const uint8_t pilate[] = "github.com/Pilate";
+const uint8_t volatile pilate[] = "github.com/Pilate";
 
 uint8_t led_color[3] = {0x00, 0x00, 0x00};
 
