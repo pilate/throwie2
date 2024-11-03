@@ -8,7 +8,7 @@
 #define BREATHE 1
 
 // Embed source link in hex
-uint8_t pilate[] = "github.com/Pilate";
+const uint8_t pilate[] = "github.com/Pilate";
 
 uint8_t base_color[3] = {0x00, 0x00, 0x00};
 uint8_t show_color[3] = {0x00, 0x00, 0x00};
