@@ -4,14 +4,13 @@
 #include "lib8tion/lib8tion.h"
 
 
-// #define FLICKER 1
 #define BREATHE 1
+// #define FLICKER 1
 
 // Embed source link in hex
 const uint8_t pilate[] = "github.com/Pilate";
 
-uint8_t base_color[3] = {0x00, 0x00, 0x00};
-uint8_t show_color[3] = {0x00, 0x00, 0x00};
+uint8_t pixel_color[3] = {0x00, 0x00, 0x00};
 
 
 void __attribute__((noinline)) write_pixel()
@@ -59,7 +58,7 @@ void __attribute__((noinline)) write_pixel()
         " sei \n"
         :
         : [port] "m"(PORTB),
-          [data] "x"(show_color),
+          [data] "x"(pixel_color),
           [data_len] "r"(3),
           [pin] "r"(1 << PB2),
           [zero] "r"(0)
@@ -112,7 +111,6 @@ ISR(ADC_vect)
 //     return seed;
 // }
 
-
 // Claude *magic*
 uint8_t volatile rand_tiny(void)
 {
@@ -151,15 +149,17 @@ uint8_t volatile adc_sample()
     return result;
 }
 
+#ifdef BREATHE
+
+uint8_t rand_color[3] = {0x00, 0x00, 0x00};
+
 void volatile dim(uint8_t divider)
 {
     for (uint8_t i = 0; i < 3; i++)
     {
-        show_color[i] = scale8(base_color[i], divider);
+        pixel_color[i] = scale8(rand_color[i], divider);
     }
 }
-
-#ifdef BREATHE
 
 void volatile effect()
 {
@@ -168,7 +168,7 @@ void volatile effect()
         // New random color
         for (uint8_t i = 0; i < 3; i++)
         {
-            base_color[i] = rand_tiny();
+            rand_color[i] = rand_tiny();
         }
 
         while (adc_sample() < 100)
@@ -199,7 +199,7 @@ void volatile effect()
                 }
 
                 dim(ease8InOutApprox(counter));
-                write_pixel(show_color);
+                write_pixel();
                 nap(16);
             }
 
@@ -210,32 +210,39 @@ void volatile effect()
 
 #elif FLICKER
 
-void effect()
+void volatile effect()
 {
-    base_color[1] = 0xff;
+    pixel_color[1] = 0xff;
 
     while (1)
     {
         while (adc_sample() < 100)
         {
+            if (pixel_color[1])
+            {
+                pixel_color[1] = 0;
+                write_pixel();
+            }
             // nap(0xf000); // 60 seconds
             nap(10240);
         }
 
         // Don't want to hit the ADC every loop
         uint8_t counter = 0xff;
-        while (counter--) {
+        while (counter--)
+        {
             uint8_t rand_byte = rand_tiny();
             if ((rand_byte % 8) == 0)
             {
-                base_color[1] = 0x60;
+                pixel_color[1] = 0x60;
             }
             else
             {
-                base_color[1] = 0x7f;
+                pixel_color[1] = 0x7f;
             }
-            write_pixel(base_color);
-            if ((rand_byte % 5) == 0) {
+            write_pixel();
+            if ((rand_byte % 5) == 0)
+            {
                 nap(64);
             }
             nap(64);
@@ -262,7 +269,7 @@ int main(void)
     cli();
 
     // Clear pixel
-    write_pixel(base_color);
+    write_pixel();
 
     effect();
 }
