@@ -81,19 +81,19 @@ void nap(uint16_t nap_time)
     uint16_t timeout;
     uint8_t wdp;
 
+    asm volatile("sei");
     for (timeout = 1024, wdp = 6; timeout >= 16; timeout /= 2, wdp--)
     {
         while (nap_time >= timeout)
         {
             tn_wdt_setup(wdp);
-            asm volatile("sei");
             SMCR = (1 << SM1) | // Sleep mode: power down
                    (1 << SE);   // Sleep mode enable
             asm volatile("sleep");
-            asm volatile("cli");
             nap_time -= timeout;
         }
     }
+    asm volatile("cli");
 }
 
 // Watchdog
