@@ -97,13 +97,13 @@ void nap(uint16_t nap_time)
 // Watchdog
 ISR(WDT_vect, ISR_NAKED)
 {
-    asm volatile ("reti");
+    asm volatile("reti");
 }
 
 // ADC
 ISR(ADC_vect, ISR_NAKED)
 {
-    asm volatile ("reti");
+    asm volatile("reti");
 }
 
 // Claude *magic* RNG
@@ -147,6 +147,7 @@ uint8_t adc_sample()
 #ifdef BREATHE
 
 uint8_t rand_color[3] = {0x00, 0x00, 0x00};
+uint8_t scale[4] = {0x00, 0x55, 0xaa, 0xff};
 
 void dim(uint8_t divider)
 {
@@ -248,7 +249,8 @@ void effect()
 
         while (adc_sample() < 100)
         {
-            if (led_color[2]) {
+            if (led_color[2])
+            {
                 led_color[2] = 0x00;
                 update_led();
             }
