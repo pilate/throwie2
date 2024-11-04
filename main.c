@@ -28,12 +28,11 @@ void volatile update_led()
       - 0.625 HIGH (5 cycles)
       - 0.625 LOW (5 cycles)
 
+    Interrupts should be disabled
     */
 
     asm volatile(
         "setup: "
-        " cli \n" // disable interrupts
-
         " clr r25 \n"    // Set r25 to 0
         " ldi r24, 3 \n" // Set r24 to number of bytes to send
         " ldi r23, 4 \n" // Set r23 to 'PB2 on'
@@ -60,7 +59,6 @@ void volatile update_led()
         " rjmp bitloop \n"
 
         "end:"
-        " sei \n"
         :
         : [port] "m"(PORTB),
           [data] "x"(led_color)
