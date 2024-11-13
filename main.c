@@ -160,10 +160,12 @@ void effect()
 {
     while (1)
     {
-        // New random color
+        uint8_t byte = tiny_rand();
+
         for (uint8_t i = 0; i < 3; i++)
         {
-            rand_color[i] = tiny_rand();
+            rand_color[i] = scale[byte & 0b11];
+            byte >>= 2;
         }
 
         while (adc_sample() < 100)
@@ -235,7 +237,6 @@ void effect()
             }
             nap(64);
         }
-
     }
 }
 
