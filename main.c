@@ -13,8 +13,7 @@ const uint8_t volatile pilate[] = "github.com/Pilate";
 
 uint8_t led_color[3] = {0x00, 0x00, 0x00};
 
-
-void volatile update_led()
+void update_led()
 {
     /*
     8 MHz - 125ns (0.125us)
@@ -62,7 +61,7 @@ void volatile update_led()
         :
         : [port] "m"(PORTB),
           [data] "x"(led_color)
-        : "r21", "r22", "r23", "r24", "r25");
+        : "r21", "r22", "r23", "r24", "r25", "cc", "memory");
 }
 
 // Set up watchdog timer
