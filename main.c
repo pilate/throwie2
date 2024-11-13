@@ -7,6 +7,7 @@
 #define BREATHE 1
 // #define FLICKER 1
 // #define SIREN 1
+// #define MORSE 1 // Only works in microchip studio??
 
 // Embed source link in hex
 const uint8_t volatile pilate[] = "github.com/Pilate";
@@ -271,6 +272,87 @@ void effect()
             update_led();
             nap(128);
         }
+    }
+}
+
+#elif MORSE
+
+const char str[] = "TESTING";
+const uint8_t str_len = sizeof(str) - 1;
+
+// Morse code mapping
+// high bits are the length of the sequence
+// low bits are the sequence from low to high
+// eg: A = 0b00100010, 0010 = 2, 0010, from right to left: 0 = dot, 1 = dash
+const char codes[26] = {
+    0b00100010,
+    0b01000001,
+    0b01000101,
+    0b00110001,
+    0b00010000,
+    0b01000100,
+    0b00110011,
+    0b01000000,
+    0b00100000,
+    0b01001110,
+    0b00110101,
+    0b01000010,
+    0b00100011,
+    0b00100001,
+    0b00110111,
+    0b01000110,
+    0b01001011,
+    0b00110010,
+    0b00110000,
+    0b00010001,
+    0b00110100,
+    0b01001000,
+    0b00110110,
+    0b01001001,
+    0b01001101,
+    0b01000011,
+};
+
+void blink(uint8_t code) {
+    register uint8_t code_len = code >> 4;
+
+    while (code_len--)
+    {
+        led_color[1] = 0xff;
+        update_led();
+
+        nap(256); // 1 shared unit
+
+        if (code & 1)
+        {
+            nap(512); // 2 extra units for dash
+        }
+
+        led_color[1] = 0x00;
+        update_led();
+
+        nap(256); // 1 unit between parts
+
+        code >>= 1;
+    }
+    nap(768); // 3 units between letters
+}
+
+
+void effect()
+{
+    while (1) {
+        for (uint8_t i = 0; i < str_len; i++) {
+            blink(codes[str[i] - 0x41]);
+        }
+
+        // Blink blue between iterations
+        led_color[2] = 0xff;
+        update_led();
+        nap(512);
+        led_color[2] = 0x00;
+        update_led();
+        nap(512);
     }
 }
 
