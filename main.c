@@ -313,7 +313,8 @@ const char codes[26] = {
     0b01000011,
 };
 
-void blink(uint8_t code) {
+void blink(uint8_t code)
+{
     register uint8_t code_len = code >> 4;
 
     while (code_len--)
@@ -338,11 +339,12 @@ void blink(uint8_t code) {
     nap(768); // 3 units between letters
 }
 
-
 void effect()
 {
-    while (1) {
-        for (uint8_t i = 0; i < str_len; i++) {
+    while (1)
+    {
+        for (uint8_t i = 0; i < str_len; i++)
+        {
             blink(codes[str[i] - 0x41]);
         }
 
