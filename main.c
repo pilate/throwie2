@@ -281,41 +281,61 @@ const char str[] = "TESTING";
 const uint8_t str_len = sizeof(str) - 1;
 
 // Morse code mapping
-// high bits are the length of the sequence
-// low bits are the sequence from low to high
-// eg: A = 0b00100010, 0010 = 2, 0010, from right to left: 0 = dot, 1 = dash
-const char codes[26] = {
-    0b00100010,
-    0b01000001,
-    0b01000101,
-    0b00110001,
-    0b00010000,
-    0b01000100,
-    0b00110011,
-    0b01000000,
-    0b00100000,
-    0b01001110,
-    0b00110101,
+// highest 3 bits are the length of the sequence
+// lower bits are the sequence from low to high
+// eg: A = 0b00100010, 010 = 2, 00010, from right to left: 0 = dot, 1 = dash
+const char codes[43] = {
+    // 0-9
+    0b10111111,
+    0b10111110,
+    0b10111100,
+    0b10111000,
+    0b10110000,
+    0b10100000,
+    0b10100001,
+    0b10100011,
+    0b10100111,
+    0b10101111,
+    // :-@
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    // A-Z
     0b01000010,
-    0b00100011,
-    0b00100001,
-    0b00110111,
-    0b01000110,
-    0b01001011,
-    0b00110010,
-    0b00110000,
-    0b00010001,
-    0b00110100,
-    0b01001000,
-    0b00110110,
-    0b01001001,
-    0b01001101,
+    0b10000001,
+    0b10000101,
+    0b01100001,
+    0b00100000,
+    0b10000100,
+    0b01100011,
+    0b10000000,
+    0b01000000,
+    0b10001110,
+    0b01100101,
+    0b10000010,
     0b01000011,
+    0b01000001,
+    0b01100111,
+    0b10000110,
+    0b10001011,
+    0b01100010,
+    0b01100000,
+    0b00100001,
+    0b01100100,
+    0b10001000,
+    0b01100110,
+    0b10001001,
+    0b10001101,
+    0b10000011,
 };
 
 void blink(uint8_t code)
 {
-    register uint8_t code_len = code >> 4;
+    register uint8_t code_len = code >> 5;
 
     while (code_len--)
     {
@@ -341,6 +361,8 @@ void blink(uint8_t code)
 
 void effect()
 {
+    static uint8_t code;
+
     while (1)
     {
         while (adc_sample() < 100)
@@ -350,16 +372,18 @@ void effect()
 
         for (uint8_t i = 0; i < str_len; i++)
         {
-            blink(codes[str[i] - 0x41]);
+            code = str[i];
+            // space
+            if (code == 0x20) {
+                nap(1792); // 7 units for space
+            }
+            // number / letter
+            else {
+                blink(codes[code - 0x30]);
+            }
         }
 
-        // Blink blue between iterations
-        led_color[2] = 0xff;
-        update_led();
-        nap(512);
-        led_color[2] = 0x00;
-        update_led();
-        nap(512);
+        nap(4096);
     }
 }
 
