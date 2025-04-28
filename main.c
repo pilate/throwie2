@@ -343,6 +343,11 @@ void effect()
 {
     while (1)
     {
+        while (adc_sample() < 100)
+        {
+            nap(10240);
+        }
+
         for (uint8_t i = 0; i < str_len; i++)
         {
             blink(codes[str[i] - 0x41]);
