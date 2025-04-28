@@ -68,7 +68,7 @@ void update_led()
 // Set up watchdog timer
 inline void tn_wdt_setup(uint8_t wdp)
 {
-    // interrupt flag, interupt enable, change enable, enable
+    // interrupt flag, interrupt enable, change enable, enable
     wdp |= (1 << WDIF) | (1 << WDIE) | (1 << WDE);
 
     WDTCSR = wdp;
