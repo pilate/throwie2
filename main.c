@@ -65,15 +65,6 @@ void update_led()
         : "r21", "r22", "r23", "r24", "r25", "cc", "memory");
 }
 
-// Set up watchdog timer
-inline void tn_wdt_setup(uint8_t wdp)
-{
-    // interrupt flag, interrupt enable, change enable, enable
-    wdp |= (1 << WDIF) | (1 << WDIE) | (1 << WDE);
-
-    WDTCSR = wdp;
-}
-
 void nap(uint16_t nap_time)
 {
     uint16_t timeout;
@@ -84,7 +75,7 @@ void nap(uint16_t nap_time)
     {
         while (nap_time >= timeout)
         {
-            tn_wdt_setup(wdp);
+            WDTCSR = wdp | (1 << WDIE); // Watchdog interrupt enable
             SMCR = (1 << SM1) | // Sleep mode: power down
                    (1 << SE);   // Sleep mode enable
             asm volatile("sleep");
