@@ -270,6 +270,7 @@ void effect()
 
 const char str[] = "TESTING";
 const uint8_t str_len = sizeof(str) - 1;
+const uint8_t unit_len = 128;
 
 // Morse code mapping
 // highest 3 bits are the length of the sequence
@@ -333,21 +334,21 @@ void blink(uint8_t code)
         led_color[1] = 0xff;
         update_led();
 
-        nap(256); // 1 shared unit
-
-        if (code & 1)
-        {
-            nap(512); // 2 extra units for dash
+        if (code & 1) {
+            nap(unit_len * 3); // send dash
+        }
+        else {
+            nap(unit_len); // send dit
         }
 
         led_color[1] = 0x00;
         update_led();
 
-        nap(256); // 1 unit between parts
+        nap(unit_len); // 1 unit between parts
 
         code >>= 1;
     }
-    nap(768); // 3 units between letters
+    nap(unit_len * 3); // 3 units between letters
 }
 
 void effect()
@@ -364,9 +365,9 @@ void effect()
         for (uint8_t i = 0; i < str_len; i++)
         {
             code = str[i];
-            // space
+            // 7 units for space
             if (code == 0x20) {
-                nap(1792); // 7 units for space
+                nap(unit_len * 7); 
             }
             // number / letter
             else {
