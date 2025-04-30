@@ -82,7 +82,6 @@ void nap(uint16_t nap_time)
             nap_time -= timeout;
         }
     }
-    asm volatile("cli");
 }
 
 // Watchdog
@@ -394,8 +393,6 @@ int main(void)
 
     // Digital input disable on ADC pins
     DIDR0 = (1 << ADC0D) | (1 << ADC1D);
-
-    cli();
 
     // Clear LED
     update_led();
