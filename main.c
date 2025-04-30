@@ -71,7 +71,8 @@ void nap(uint16_t nap_time)
     uint8_t wdp;
 
     asm volatile("sei");
-    for (timeout = 1024, wdp = 6; timeout >= 16; timeout /= 2, wdp--)
+    // doing wdp higher than 7 requires setting the wdp3 bit separately
+    for (timeout = 2048, wdp = 7; timeout >= 16; timeout /= 2, wdp--)
     {
         while (nap_time >= timeout)
         {
