@@ -33,6 +33,8 @@ void update_led()
 
     asm volatile(
         "setup: "
+        " cli \n"        // disable interrupts, timing has to be perfect
+
         " clr r25 \n"    // Set r25 to 0
         " ldi r24, 3 \n" // Set r24 to number of bytes to send
         " ldi r23, 4 \n" // Set r23 to 'PB2 on'
@@ -125,7 +127,6 @@ uint8_t adc_sample()
            (1 << SE);   // Sleep enable
 
     asm volatile("sleep");
-    asm volatile("cli");
 
     uint8_t result = ADCL;
 
