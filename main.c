@@ -360,25 +360,24 @@ void effect()
 
     while (1)
     {
-        while (adc_sample() < 100)
+        if (adc_sample() > 100)
         {
-            nap(10240);
-        }
-
-        for (uint8_t i = 0; i < str_len; i++)
-        {
-            code = str[i];
-            // 7 units for space
-            if (code == 0x20) {
-                nap(unit_len * 7); 
+            for (uint8_t i = 0; i < str_len; i++)
+            {
+                code = str[i];
+                // 7 units for space
+                if (code == 0x20)
+                {
+                    nap(unit_len * 7);
+                }
+                // number or letter
+                else
+                {
+                    blink(codes[code - 0x30]);
+                }
             }
-            // number / letter
-            else {
-                blink(codes[code - 0x30]);
-            }
         }
-
-        nap(4096);
+        nap(0xf000);
     }
 }
 
