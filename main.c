@@ -332,17 +332,19 @@ void blink(uint8_t code)
 
     while (code_len--)
     {
-        led_color[1] = 0xff;
+        led_color[0] = 0xff;
         update_led();
 
-        if (code & 1) {
+        if (code & 1)
+        {
             nap(unit_len * 3); // send dash
         }
-        else {
+        else
+        {
             nap(unit_len); // send dit
         }
 
-        led_color[1] = 0x00;
+        led_color[0] = 0x00;
         update_led();
 
         nap(unit_len); // 1 unit between parts
