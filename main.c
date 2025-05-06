@@ -73,14 +73,18 @@ void nap(uint16_t nap_time)
     uint8_t wdp;
 
     asm volatile("sei");
+
+    SMCR = (1 << SM1) | // Sleep mode: power down
+           (1 << SE);   // Sleep mode enable
+
     // doing wdp higher than 7 requires setting the wdp3 bit separately
     for (timeout = 2048, wdp = 7; timeout >= 16; timeout /= 2, wdp--)
     {
+        CCP = 0xD8;
+        WDTCSR = wdp | (1 << WDIE); // Watchdog interrupt enable
+
         while (nap_time >= timeout)
         {
-            WDTCSR = wdp | (1 << WDIE); // Watchdog interrupt enable
-            SMCR = (1 << SM1) | // Sleep mode: power down
-                   (1 << SE);   // Sleep mode enable
             asm volatile("sleep");
             nap_time -= timeout;
         }
