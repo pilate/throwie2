@@ -116,7 +116,7 @@ uint8_t tiny_rand(void)
 
 uint8_t adc_sample()
 {
-    PORTB = 1 << PB1; // turn on power to photoresitor
+    asm volatile("sbi %[port], 1" ::[port] "m"(PORTB));
 
     ADCSRA = (1 << ADEN) |  // Enable ADC
              (1 << ADIE) |  // Enable completion interrupt
@@ -131,7 +131,7 @@ uint8_t adc_sample()
 
     uint8_t result = ADCL;
 
-    PORTB = 0;
+    asm volatile("cbi %[port], 1" ::[port] "m"(PORTB));
     ADCSRA = 0;
 
     return result;
