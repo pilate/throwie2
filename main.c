@@ -34,28 +34,25 @@ void update_led()
     asm volatile(
         "setup: "
         " cli \n"        // disable interrupts, timing has to be perfect
-
-        " clr r25 \n"    // Set r25 to 0
-        " ldi r24, 3 \n" // Set r24 to number of bytes to send
-        " ldi r23, 4 \n" // Set r23 to 'PB2 on'
+        " ldi r21, 3 \n" // number of bytes to send
 
         "start: "
-        " dec r24 \n"
+        " dec r21 \n"
         " brmi end \n"
-        " ld r21, X+ \n" // Load next byte into r21
-        " ldi r22, 8 \n" // set bit counter to 8
+        " ld r22, X+ \n" // Load next byte
+        " ldi r23, 8 \n" // set bit counter to 8
 
         "bitloop: "
-        " out %[port], r23 \n" // Set pin to HIGH
-        " lsl r21 \n"          // Shift the bit we're working on into C flag
+        " sbi %[port], 2 \n" // Set pin to HIGH
+        " lsl r22 \n"          // Shift the bit we're working on into C flag
         " brcs sendhigh \n"    // Stay high on 1 bit
-        " out %[port], r25 \n" // Send 0 bit
+        " cbi %[port], 2 \n" // Send 0 bit
 
         "sendhigh: "
-        " dec r22 \n" // decrease bit counter
+        " dec r23 \n" // decrease bit counter
 
         "endlow: "
-        " out %[port], r25 \n" // Shared LOW
+        " cbi %[port], 2 \n" // Shared LOW
         " breq start \n"       // if bit counter was 0, back to start
         " nop \n"
         " rjmp bitloop \n"
@@ -64,7 +61,7 @@ void update_led()
         :
         : [port] "m"(PORTB),
           [data] "x"(led_color)
-        : "r21", "r22", "r23", "r24", "r25", "cc", "memory");
+        : "r21", "r22", "r23", "cc", "memory");
 }
 
 void nap(uint16_t nap_time)
