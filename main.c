@@ -44,8 +44,8 @@ void update_led()
 
         "bitloop: "
         " sbi %[port], 2 \n" // Set pin to HIGH
-        " lsl r22 \n"          // Shift the bit we're working on into C flag
-        " brcs sendhigh \n"    // Stay high on 1 bit
+        " lsl r22 \n"        // Shift the bit we're working on into C flag
+        " brcs sendhigh \n"  // Stay high on 1 bit
         " cbi %[port], 2 \n" // Send 0 bit
 
         "sendhigh: "
@@ -53,7 +53,7 @@ void update_led()
 
         "endlow: "
         " cbi %[port], 2 \n" // Shared LOW
-        " breq start \n"       // if bit counter was 0, back to start
+        " breq start \n"     // if bit counter was 0, back to start
         " nop \n"
         " rjmp bitloop \n"
 
@@ -124,9 +124,9 @@ uint8_t adc_sample()
              (1 << ADPS1);
 
     asm volatile("sei");
+
     SMCR = (1 << SM0) | // Sleep mode: ADC Noise reduction
            (1 << SE);   // Sleep enable
-
     asm volatile("sleep");
 
     uint8_t result = ADCL;
