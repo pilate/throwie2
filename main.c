@@ -395,8 +395,8 @@ int main(void)
     CLKPSR = 0;
 
     // PB0 used for photoresistor input
-    DDRB = 0b11111110;
-    PORTB = 0;
+    DDRB = 0b1110;
+    PORTB = 0b0000;
 
     // Digital input disable on ADC pins
     DIDR0 = (1 << ADC0D) | (1 << ADC1D);
