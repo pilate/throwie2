@@ -1,5 +1,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 
 #include "lib8tion/lib8tion.h"
 
@@ -7,7 +8,7 @@
 #define BREATHE 1
 // #define FLICKER 1
 // #define SIREN 1
-// #define MORSE 1 // Only works in microchip studio??
+// #define MORSE 1
 
 // Embed source link in hex
 const uint8_t volatile pilate[] = "github.com/Pilate";
@@ -59,7 +60,7 @@ void update_led()
 
         "end:"
         :
-        : [port] "m"(PORTB),
+        : [port] "I"(_SFR_IO_ADDR(PORTB)),
           [data] "x"(led_color)
         : "r21", "r22", "r23", "cc", "memory");
 }
@@ -270,7 +271,7 @@ void effect()
 
 #elif MORSE
 
-const char str[] = "TESTING";
+const uint8_t str[] PROGMEM = "TESTING";
 const uint8_t str_len = sizeof(str) - 1;
 const uint8_t unit_len = 128;
 
@@ -278,7 +279,7 @@ const uint8_t unit_len = 128;
 // highest 3 bits are the length of the sequence
 // lower bits are the sequence from low to high
 // eg: A = 0b00100010, 010 = 2, 00010, from right to left: 0 = dot, 1 = dash
-const char codes[43] = {
+const uint8_t codes[43] PROGMEM = {
     // 0-9
     0b10111111,
     0b10111110,
@@ -357,7 +358,7 @@ void blink(uint8_t code)
 
 void effect()
 {
-    static uint8_t code;
+    uint8_t code;
 
     while (1)
     {
