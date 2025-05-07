@@ -36,7 +36,7 @@ void update_led()
         "setup: "
         " cli \n"        // disable interrupts, timing has to be perfect
         " ldi r21, 3 \n" // number of bytes to send
-
+        
         "start: "
         " dec r21 \n"
         " brmi end \n"
@@ -330,7 +330,7 @@ const uint8_t codes[43] PROGMEM = {
 
 void blink(uint8_t code)
 {
-    register uint8_t code_len = code >> 5;
+    uint8_t code_len = code >> 5;
 
     while (code_len--)
     {
